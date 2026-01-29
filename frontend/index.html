@@ -1,0 +1,560 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>ChurnInsight | Predicción de Churn</title>
+
+    <!-- Bootstrap -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <!-- Bootstrap Icons -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+      rel="stylesheet"
+    />
+
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+
+  <body
+    data-backend-url="http://localhost:8080/api/predict"
+    data-ml-health-url="http://localhost:8000/health"
+  >
+    <!-- Topbar -->
+    <nav
+      class="navbar navbar-expand-lg navbar-dark topbar border-bottom border-white border-opacity-10"
+    >
+      <div class="container">
+        <a class="navbar-brand d-flex align-items-center gap-2" href="#">
+          <span class="brand-dot"></span>
+          <span class="fw-semibold">ChurnInsight</span>
+        </a>
+
+        <div class="d-flex align-items-center gap-3 ms-auto small">
+          <div class="d-flex align-items-center gap-2">
+            <span
+              class="status-pill"
+              id="status-backend"
+              title="Estado del backend Java (Spring Boot)"
+            >
+              <i class="bi bi-circle-fill"></i> Backend: ?
+            </span>
+
+            <span
+              class="status-pill"
+              id="status-ml"
+              title="El backend Java consume el ML. Desde el navegador puede no verse por CORS o red."
+            >
+              <i class="bi bi-circle-fill"></i> ML: ?
+            </span>
+          </div>
+          <span class="text-white-50 d-none d-md-inline"
+            >Demo frontend (HTML + Bootstrap)</span
+          >
+        </div>
+      </div>
+    </nav>
+
+    <main class="container py-3 py-lg-3">
+      <!-- =============================== KPIs Section =============================== -->
+      <div
+        class="d-flex justify-content-between flex-wrap mb-3"
+        id="kpisSection"
+      >
+        <!-- Total Evaluados -->
+        <div
+          class="card text-center bg-dark text-white p-1 m-1 flex-fill"
+          style="min-width: 150px"
+        >
+          <div class="card-title text-secondary mb-2">Total Evaluados</div>
+          <div class="h4 fw-bold" id="kpiTotal">—</div>
+        </div>
+
+        <!-- Riesgo Alto -->
+        <div
+          class="card text-center bg-danger text-white p-1 m-1 flex-fill"
+          style="min-width: 150px"
+        >
+          <div class="card-title text-white mb-2">Riesgo Alto</div>
+          <div class="h4 fw-bold" id="kpiHigh">—</div>
+        </div>
+
+        <!-- Riesgo Medio -->
+        <div
+          class="card text-center bg-warning text-dark p-1 m-1 flex-fill"
+          style="min-width: 150px"
+        >
+          <div class="card-title text-dark mb-2">Riesgo Medio</div>
+          <div class="h4 fw-bold" id="kpiMedium">—</div>
+        </div>
+
+        <!-- Riesgo Bajo -->
+        <div
+          class="card text-center bg-success text-white p-1 m-1 flex-fill"
+          style="min-width: 150px"
+        >
+          <div class="card-title text-white mb-2">Riesgo Bajo</div>
+          <div class="h4 fw-bold" id="kpiLow">—</div>
+        </div>
+
+        <!-- Tasa de churn -->
+        <div
+          class="card text-center bg-info text-white p-1 m-1 flex-fill"
+          style="min-width: 150px"
+        >
+          <div class="card-title text-white mb-2">Tasa de churn (%)</div>
+          <div class="h4 fw-bold" id="kpiChurnRate">—</div>
+        </div>
+      </div>
+
+      <div class="row g-4 align-items-stretch">
+        <!-- Left: Form -->
+        <div class="col-12 col-lg-7">
+          <div class="card card-soft h-100">
+            <div class="card-body p-4 p-lg-5">
+              <div
+                class="d-flex align-items-start justify-content-between gap-3 mb-3"
+              >
+                <div>
+                  <!-- ✅ Mayor contraste -->
+                  <h1 class="h4 mb-1 text-white fw-semibold">
+                    Predicción de churn
+                  </h1>
+                  <p class="text-secondary mb-0">
+                    Completa los datos del cliente y presiona <b>Predecir</b>.
+                  </p>
+                </div>
+                <div class="text-end">
+                  <span
+                    class="badge text-bg-dark border border-white border-opacity-10"
+                    >POST</span
+                  >
+                  <div class="small text-secondary mt-1" id="endpointLabel">
+                    /api/predict
+                  </div>
+                </div>
+              </div>
+
+              <!-- Alerts -->
+              <div id="alertBox" class="alert d-none" role="alert"></div>
+
+              <!-- Bootstrap validation -->
+              <form id="predictForm" class="mt-4 needs-validation" novalidate>
+                <div class="row g-3">
+                  <div class="col-12 col-md-6">
+                    <label class="form-label" for="customer_id"
+                      >ID del cliente</label
+                    >
+                    <input
+                      class="form-control"
+                      id="customer_id"
+                      placeholder="ej: abc-123"
+                      required
+                      minlength="2"
+                      maxlength="64"
+                    />
+                    <div class="invalid-feedback">
+                      Ingresa un ID del cliente (2–64 caracteres).
+                    </div>
+                  </div>
+
+                  <div class="col-12 col-md-6">
+                    <label class="form-label" for="subscription_type"
+                      >Tipo de suscripción</label
+                    >
+                    <select class="form-select" id="subscription_type" required>
+                      <option value="" selected disabled>
+                        Selecciona un plan
+                      </option>
+                      <option>Basic</option>
+                      <option>Standard</option>
+                      <option>Premium</option>
+                    </select>
+                    <div class="invalid-feedback">Selecciona un plan.</div>
+                  </div>
+
+                  <div class="row g-3">
+                    <!-- Método de pago -->
+                    <div class="col-12 col-md-4">
+                      <label class="form-label" for="payment_method"
+                        >Método de pago</label
+                      >
+                      <select class="form-select" id="payment_method" required>
+                        <option value="" selected disabled>
+                          Selecciona método
+                        </option>
+                        <option>Credit Card</option>
+                        <option>Debit Card</option>
+                        <option>PayPal</option>
+                        <option>Gift Card</option>
+                        <option>Crypto</option>
+                      </select>
+                      <div class="invalid-feedback">
+                        Selecciona un método de pago.
+                      </div>
+                    </div>
+
+                    <!-- Tarifa mensual -->
+                    <div class="col-12 col-md-4">
+                      <label class="form-label" for="monthly_fee"
+                        >Tarifa mensual</label
+                      >
+                      <div class="input-group">
+                        <span class="input-group-text">$</span>
+                        <input
+                          class="form-control"
+                          id="monthly_fee"
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          max="1000"
+                          placeholder="17.99"
+                          required
+                          readonly
+                        />
+                        <div class="form-text text-secondary">
+                          Se calcula automáticamente.
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Promedio diario -->
+                    <div class="col-12 col-md-4">
+                      <label class="form-label" for="avg_watch_time_per_day"
+                        >Promedio diario (hrs)</label
+                      >
+                      <input
+                        class="form-control"
+                        id="avg_watch_time_per_day"
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        max="24"
+                        placeholder="2,27"
+                        required
+                        readonly
+                      />
+                      <div class="form-text text-secondary">
+                        Se calcula automáticamente.
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="col-12 col-md-4">
+                    <label class="form-label" for="watch_hours"
+                      >Horas vistas</label
+                    >
+                    <input
+                      class="form-control"
+                      id="watch_hours"
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      max="10000"
+                      placeholder="17.9"
+                      required
+                    />
+                    <div class="invalid-feedback">
+                      Ingresa horas válidas (>= 0).
+                    </div>
+                  </div>
+
+                  <div class="col-12 col-md-4">
+                    <label class="form-label" for="last_login_days"
+                      >Días desde último acceso</label
+                    >
+                    <input
+                      class="form-control"
+                      id="last_login_days"
+                      type="number"
+                      step="1"
+                      min="0"
+                      max="3650"
+                      placeholder="6"
+                      required
+                    />
+                    <div class="invalid-feedback">
+                      Ingresa días válidos (>= 0).
+                    </div>
+                  </div>
+
+                  <div class="col-12 col-md-4">
+                    <label class="form-label" for="number_of_profiles"
+                      >Cantidad de perfiles</label
+                    >
+                    <input
+                      class="form-control"
+                      id="number_of_profiles"
+                      type="number"
+                      step="1"
+                      min="1"
+                      max="5"
+                      placeholder="1"
+                      required
+                    />
+                    <div class="invalid-feedback">
+                      Ingresa un número de perfiles válido (1–5).
+                    </div>
+                  </div>
+
+                  <div class="col-12 col-md-6 d-flex align-items-end gap-2">
+                    <button
+                      class="btn btn-primary w-100"
+                      id="btnPredict"
+                      type="submit"
+                    >
+                      <span class="me-2">Predecir</span>
+                      <span
+                        class="spinner-border spinner-border-sm d-none"
+                        id="btnSpinner"
+                        role="status"
+                        aria-hidden="true"
+                      ></span>
+                    </button>
+
+                    <button
+                      class="btn btn-outline-light"
+                      id="btnClear"
+                      type="button"
+                      title="Limpiar formulario y resultado"
+                    >
+                      Nueva Predicción
+                    </button>
+                  </div>
+                </div>
+              </form>
+
+              <div class="card demo-card mt-4">
+                <div class="card-body">
+                  <h5 class="card-title">🧪 Datos de demostración</h5>
+
+                  <p class="card-text text-muted">
+                    Genera automáticamente un conjunto de datos válidos para
+                    mostrar el funcionamiento del modelo de predicción de churn,
+                    sin ingresar información manual.
+                  </p>
+
+                  <button class="btn btn-outline-info" id="btnAuto">
+                    Generar datos de demostración
+                  </button>
+                </div>
+              </div>
+
+              <hr class="my-4 border-white border-opacity-10" />
+
+              <div class="small text-secondary">
+                <i class="bi bi-info-circle me-1"></i>
+                Si aparece <b>503</b>, significa que el servicio ML (Python) no
+                está disponible para el backend.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Result -->
+        <div class="col-12 col-lg-5">
+          <div class="card card-soft h-100">
+            <div class="card-body p-4 p-lg-5">
+              <!-- ✅ Mayor contraste -->
+              <h2 class="h5 mb-1 text-white fw-semibold">Resultado</h2>
+
+              <!-- ✅ Texto más útil para usuario -->
+              <p class="text-secondary mb-4">
+                Aquí verás la predicción y el nivel de riesgo.
+              </p>
+
+              <div class="result-box">
+                <!-- Estado inicial (antes de predecir) -->
+                <div id="resultEmpty" class="py-3">
+                  <div class="d-flex gap-2 align-items-start">
+                    <i class="bi bi-graph-up-arrow text-secondary"></i>
+                    <div class="small text-secondary">
+                      Aún no hay resultados. Completa el formulario y presiona
+                      <b>Predecir</b>.
+                    </div>
+                  </div>
+                </div>
+                <div class="row g-3" id="resultContent">
+                  <div class="col-12">
+                    <div class="label">ID del cliente</div>
+                    <div class="value" id="outCustomer">—</div>
+                  </div>
+
+                  <div class="col-12">
+                    <div class="label">Previsión</div>
+                    <div class="value big" id="outPrevision">—</div>
+                  </div>
+
+                  <div class="col-12 col-md-6">
+                    <div class="label">Probabilidad</div>
+                    <div class="value" id="outProb">—</div>
+                  </div>
+
+                  <div class="col-12 col-md-6">
+                    <div class="label">Etiqueta (modelo)</div>
+                    <div class="value" id="outLabel">—</div>
+                  </div>
+
+                  <div class="col-12">
+                    <div
+                      class="label d-flex align-items-center justify-content-between"
+                    >
+                      <span>Riesgo de churn</span>
+                      <span class="small text-secondary" id="riskText">—</span>
+                    </div>
+                    <div
+                      class="progress mt-1"
+                      role="progressbar"
+                      aria-label="Riesgo churn"
+                    >
+                      <div
+                        class="progress-bar"
+                        id="riskBar"
+                        style="width: 0%"
+                      ></div>
+                    </div>
+                    <div class="small text-secondary mt-2" id="riskHint">—</div>
+                  </div>
+
+                  <div id="resultDetailContainer"></div>
+
+                  <div class="col-12">
+                    <div class="mt-2">
+                      <span
+                        class="badge rounded-pill text-bg-dark border border-white border-opacity-10"
+                        id="badgeEndpoint"
+                      >
+                        Endpoint: POST http://localhost:8080/api/predict
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="mt-4 small text-secondary" id="debugInfo"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= HISTORIAL DE BÚSQUEDA ================= -->
+      <div class="row g-4 mt-2">
+        <div class="col-12">
+          <div class="card card-soft">
+            <div class="card-body p-4 p-lg-5">
+              <h2 class="h5 mb-1 text-white fw-semibold">Historial</h2>
+              <p class="text-secondary mb-4">
+                Últimas predicciones realizadas (máx. 10). Filtra por cliente o
+                rango de fechas.
+              </p>
+
+              <!-- Filtros -->
+              <div class="row g-3 align-items-end mb-4">
+                <div class="col-12 col-md-4">
+                  <label class="form-label">ID del cliente</label>
+                  <input
+                    class="form-control"
+                    id="historyCustomerId"
+                    placeholder="ej: abc-123"
+                  />
+                </div>
+
+                <div class="col-12 col-md-3">
+                  <label class="form-label">Fecha inicio</label>
+                  <input
+                    class="form-control"
+                    type="date"
+                    id="historyStartDate"
+                  />
+                </div>
+
+                <div class="col-12 col-md-3">
+                  <label class="form-label">Fecha fin</label>
+                  <input class="form-control" type="date" id="historyEndDate" />
+                </div>
+
+                <div class="col-12 col-md-2 d-grid gap-2">
+                  <button class="btn btn-outline-light" id="btnHistoryExport">
+                    Exportar CSV
+                  </button>
+                  <button class="btn btn-primary" id="btnHistorySearch">
+                    Buscar
+                  </button>
+                </div>
+              </div>
+
+              <!-- Tabla -->
+              <div class="table-responsive">
+                <table
+                  class="table table-dark table-hover align-middle mb-0 d-none"
+                  id="historyTable"
+                >
+                  <thead>
+                    <tr>
+                      <th>#</th>
+                      <th>Cliente</th>
+                      <th>Fecha</th>
+                      <th>Riesgo</th>
+                      <th>Resultado</th>
+                      <th>Suscripción</th>
+                      <th>Método Pago</th>
+                      <th class="text-end">Prob.</th>
+                      <!-- Alineación a la derecha -->
+                      <th class="text-center">Acción</th>
+                    </tr>
+                  </thead>
+                  <tbody id="historyTbody"></tbody>
+                </table>
+              </div>
+
+              <div class="small text-secondary mt-3" id="historyEmpty">
+                No hay registros para mostrar.
+              </div>
+
+              <!-- Paginación -->
+              <div
+                class="d-flex justify-content-between align-items-center mt-4"
+              >
+                <button class="btn btn-outline-light" id="btnPrev" disabled>
+                  Anterior
+                </button>
+                <span id="currentPage" class="text-white-50 small"
+                  >Página 1</span
+                >
+                <button class="btn btn-outline-light" id="btnNext">
+                  Siguiente
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- ========================================================= -->
+    </main>
+
+    <!-- Modal Detalle Historial -->
+    <div class="modal fade" id="historyDetailModal" tabindex="-1">
+      <div
+        class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable"
+      >
+        <div class="modal-content bg-dark text-white border border-secondary">
+          <div class="modal-header border-secondary">
+            <h5 class="modal-title">Detalle de Predicción</h5>
+            <button
+              type="button"
+              class="btn-close btn-close-white"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body" id="historyDetailBody"></div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="./app.js"></script>
+  </body>
+</html>

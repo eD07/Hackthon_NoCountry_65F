@@ -1,0 +1,258 @@
+:root{
+  --bg0:#070A12;
+  --bg1:#0B1020;
+
+  --border: rgba(255,255,255,.10);
+
+  --text:#EAF0FF;
+  --muted: rgba(234,240,255,.72);
+
+  --primary:#7C5CFF;
+  --primary2:#4DA3FF;
+
+  --success-bg:#0B2A1E;
+  --success-bd: rgba(34,197,94,.35);
+  --success-tx:#D1FAE5;
+
+  --danger-bg:#2A0B12;
+  --danger-bd: rgba(239,68,68,.35);
+  --danger-tx:#FFE4E6;
+}
+
+html, body { height:100%; }
+
+body{
+  background:
+    radial-gradient(900px 500px at 10% 10%, rgba(124,92,255,.20), transparent 60%),
+    radial-gradient(700px 420px at 85% 20%, rgba(77,163,255,.16), transparent 55%),
+    linear-gradient(180deg, var(--bg1), var(--bg0));
+  color: var(--text);
+}
+
+.topbar{
+  background: rgba(10,14,30,.60);
+  backdrop-filter: blur(10px);
+}
+
+.brand-dot{
+  width:10px;height:10px;border-radius:999px;
+  background: linear-gradient(90deg, var(--primary), var(--primary2));
+  box-shadow: 0 0 18px rgba(124,92,255,.55);
+}
+
+/* Animación sutil para las tarjetas de KPI al pasar el mouse */
+#kpisSection .card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border: 1px solid rgba(255,255,255,0.1) !important;
+}
+
+#kpisSection .card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+}
+
+.card-soft{
+  background: linear-gradient(180deg, rgba(15,23,42,.88), rgba(8,12,24,.92));
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  box-shadow: 0 18px 50px rgba(0,0,0,.45);
+}
+.card-soft .text-secondary{ color: var(--muted) !important; }
+
+.form-label{ color: rgba(234,240,255,.88); }
+.form-text{ color: rgba(234,240,255,.60); }
+
+.form-control, .form-select, .input-group-text{
+  background: rgba(255,255,255,.06) !important;
+  border: 1px solid rgba(255,255,255,.14) !important;
+  color: var(--text) !important;
+}
+.form-control::placeholder{ color: rgba(234,240,255,.45); }
+.form-control:focus, .form-select:focus{
+  box-shadow: 0 0 0 .25rem rgba(124,92,255,.25) !important;
+  border-color: rgba(124,92,255,.55) !important;
+}
+
+.btn-primary{
+  background: linear-gradient(90deg, var(--primary), #5A79FF) !important;
+  border: 0 !important;
+}
+.btn-primary:hover{ filter: brightness(1.05); }
+
+.btn-outline-light{
+  border-color: rgba(255,255,255,.20) !important;
+}
+.btn-outline-light:hover{
+  background: rgba(255,255,255,.10) !important;
+}
+
+.status-pill{
+  display:inline-flex; align-items:center; gap:.45rem;
+  padding:.35rem .6rem;
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 999px;
+  background: rgba(255,255,255,.06);
+  color: rgba(234,240,255,.85);
+}
+.status-pill i{ font-size:.55rem; opacity:.9; }
+
+#alertBox.alert-success{
+  background: var(--success-bg);
+  border: 1px solid var(--success-bd);
+  color: var(--success-tx);
+}
+#alertBox.alert-danger{
+  background: var(--danger-bg);
+  border: 1px solid var(--danger-bd);
+  color: var(--danger-tx);
+}
+
+.result-box{
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 16px;
+  padding: 18px;
+  background: rgba(255,255,255,.04);
+}
+.result-box .label{
+  color: rgba(234,240,255,.60);
+  font-size: .85rem;
+}
+.result-box .value{
+  color: rgba(234,240,255,.92);
+  font-weight: 600;
+}
+.result-box .value.big{
+  font-size: 1.25rem;
+  letter-spacing: .2px;
+}
+
+#badgeEndpoint{
+  background: rgba(0,0,0,.35) !important;
+  color: rgba(234,240,255,.92) !important;
+  border-color: rgba(255,255,255,.14) !important;
+}
+
+code{ color: #FF78B9; }
+
+.form-select option {
+  color: #111 !important;
+  background: #fff !important;
+}
+
+.invalid-feedback{
+  color: rgba(255, 180, 180, .95);
+}
+
+.progress{
+  height: 10px;
+  background: rgba(255,255,255,.08);
+  border: 1px solid rgba(255,255,255,.10);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.progress-bar{
+  transition: width .25s ease;
+}
+
+
+/* Mejora de contraste para textos secundarios */
+.text-secondary {
+  color: rgba(220, 225, 235, 0.75) !important;
+}
+
+/* Labels dentro de tarjetas de resultado */
+.result-box .label {
+  color: rgba(230, 235, 245, 0.70);
+  font-weight: 500;
+}
+
+/* Texto explicativo pequeño (debajo de barras, hints, etc.) */
+.result-box .small,
+.form-text,
+.small.text-secondary {
+  color: rgba(210, 215, 225, 0.70);
+}
+
+#btnClear {
+  white-space: nowrap;
+}
+
+
+
+/* Badge custom para "Riesgo medio" (mejor contraste en tema oscuro) */
+.badge-risk-medium {
+  background: #f59e0b !important; /* amber */
+  color: #111827 !important;      /* casi negro */
+  border: 1px solid rgba(245, 158, 11, 0.55) !important;
+}
+
+/* Extra: badges un poquito más "premium" */
+.badge-soft {
+  padding: .35rem .6rem;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: .80rem;
+}
+
+.risk-factor-item {
+  background: rgba(255,255,255,.04);
+  border: 1px solid rgba(255,255,255,.10);
+  border-radius: 12px;
+  padding: .55rem .75rem;
+  margin-bottom: .5rem;
+  font-size: .85rem;
+  color: rgba(234,240,255,.92);
+}
+
+.risk-factor-high {
+  border-color: rgba(239,68,68,.35);
+  background: rgba(239,68,68,.08);
+}
+
+.risk-factor-medium {
+  border-color: rgba(245,158,11,.35);
+  background: rgba(245,158,11,.08);
+}
+
+.risk-factor-low {
+  border-color: rgba(34,197,94,.30);
+  background: rgba(34,197,94,.08);
+}
+
+#actionSuggestedSection {
+    color: #4caf50; /* Verde más suave para el texto */
+}
+
+
+#actionSuggestedSenal {
+    color: hsl(38, 93%, 48%); /* Verde más suave para el texto */
+}
+
+
+.demo-card {
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.04),
+    rgba(255, 255, 255, 0.02)
+  );
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.demo-card .card-title {
+  font-weight: 600;
+  color: #9ddcff;
+}
+
+.demo-card .card-text {
+  font-size: 0.9rem;
+  color: white !important; /* Ajuste para que el texto sea blanco */
+  opacity: 1 !important; /* Opcional, para garantizar que el texto no tenga opacidad */
+}
+
+
+
+.demo-card .card-body {
+  background-color: rgba(0, 0, 0, 0.3); /* Fondo sutil para contraste */
+}
+
+

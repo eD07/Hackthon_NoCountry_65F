@@ -1,0 +1,50 @@
+# Operating Systems
+.DS_Store
+Thumbs.db
+
+# IDEs & Editors
+.idea/
+.vscode/
+*.iml
+
+# Java / Maven / Gradle
+**/target/
+**/build/
+**/.gradle/
+*.class
+*.log
+
+# Spring Boot
+**/logs/
+**/*.log
+
+# Python
+**/__pycache__/
+**/*.pyc
+**/*.pyo
+**/*.pyd
+**/.venv/
+**/venv/
+**/env/
+**/.env
+
+# Jupyter Notebooks
+.ipynb_checkpoints/
+
+# Python Data Science
+**/.mypy_cache/
+**/.pytest_cache/
+**/.coverage
+**/dist/
+**/build/
+
+# Logs & temp files
+*.tmp
+*.swp
+*.bak
+
+# Security
+**/application-local.yml
+**/application-dev.yml
+**/*.key
+**/*.pem
